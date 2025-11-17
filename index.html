@@ -4,7 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0a8f3d" />
-    <title>Etukuponki – S-tyyli</title>
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Etukuponki" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <title>Etukuponki �?" S-tyyli</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,7 +34,7 @@
         <section class="card">
           <div class="label">Etukuponki</div>
           <div class="title-row">
-            <h1 class="title">Valitsemasi hillo tai säilyke</h1>
+            <h1 class="title">Valitsemasi hillo tai s��ilyke</h1>
             <button class="save-btn" aria-pressed="false" aria-label="Tallenna kuponki">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path d="M6 2h12a1 1 0 0 1 1 1v18l-7-4-7 4V3a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none" />
@@ -44,14 +49,14 @@
           </div>
 
           <p class="muted">
-            Tällä kupongilla valitsemasi hillo tai säilyke -25&nbsp;%. 1 kpl/kuponki. Lunastettavissa
-            S-ryhmän myymälöissä. Ei verkkokaupassa. Ei yhdistettävissä muihin etuihin. Tuotekuvat esimerkkejä.
+            T��ll�� kupongilla valitsemasi hillo tai s��ilyke -25&nbsp;%. 1 kpl/kuponki. Lunastettavissa
+            S-ryhm��n myym��l��iss��. Ei verkkokaupassa. Ei yhdistett��viss�� muihin etuihin. Tuotekuvat esimerkkej��.
           </p>
           <div class="valid">Voimassa <span id="valid-until"></span> asti</div>
         </section>
       </main>
 
-      <button id="action-btn" class="cta" aria-live="polite">Näytä myyjälle</button>
+      <button id="action-btn" class="cta" aria-live="polite">N��yt�� myyj��lle</button>
 
       <!-- Modal overlay (behind sheet) -->
       <div id="overlay" class="overlay hidden" aria-hidden="true"></div>
@@ -61,8 +66,8 @@
         <div class="sheet-handle"></div>
         <h2>Kupongin lunastus</h2>
         <p>
-          Vahvista, että kuponki käytetään nyt. Voit käyttää kupongin vain kerran ja ostotapahtuman
-          yhteydessä. Lunasta kuponki painikkeella ja näytä lunastettu kuponki kassalla.
+          Vahvista, ett�� kuponki k��ytet����n nyt. Voit k��ytt���� kupongin vain kerran ja ostotapahtuman
+          yhteydess��. Lunasta kuponki painikkeella ja n��yt�� lunastettu kuponki kassalla.
         </p>
         <div class="sheet-actions">
           <button id="cancel-btn" class="sheet-action" type="button">Peruuta</button>
@@ -73,7 +78,7 @@
       <!-- Editor bottom sheet -->
       <div id="edit-sheet" class="sheet hidden" aria-hidden="true">
         <div class="sheet-handle"></div>
-        <h2>Muokkaa sisältöä</h2>
+        <h2>Muokkaa sis��lt����</h2>
         <div class="form-row">
           <label for="img-input" class="field-label">Uusi kuva</label>
           <input id="img-input" type="file" accept="image/*" />
@@ -92,7 +97,7 @@
         </div>
         <div class="form-row">
           <label for="legal-input" class="field-label">Kuvausteksti</label>
-          <textarea id="legal-input" class="text-input" rows="5" placeholder="Pitkä kuvaava teksti"></textarea>
+          <textarea id="legal-input" class="text-input" rows="5" placeholder="Pitk�� kuvaava teksti"></textarea>
         </div>
         <div class="sheet-actions">
           <button id="edit-cancel" class="sheet-action" type="button">Peruuta</button>
@@ -111,3 +116,4 @@
     </script>
   </body>
   </html>
+

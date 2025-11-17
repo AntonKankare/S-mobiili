@@ -1,0 +1,17 @@
+{
+  "name": "S-mobiili etukuponki",
+  "short_name": "Etukuponki",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "background_color": "#0a8f3d",
+  "theme_color": "#0a8f3d",
+  "icons": [
+    {
+      "src": "assets/coupon.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}
+
