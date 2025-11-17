@@ -8,12 +8,14 @@
   const confirmBtn = qs('#confirm-btn');
   const redeemStatus = qs('#redeem-status');
   const redeemTimeEl = qs('#redeem-time');
+  const redeemDateEl = qs('#redeem-date');
   const validUntilEl = qs('#valid-until');
   const backBtn = qs('.back');
   const legalEl = qs('.muted');
   const heroImage = qs('#hero-image');
   const titleEl = qs('.title');
   const discountEl = qs('.discount');
+  const saveBtn = qs('.save-btn');
 
   // Edit UI elements
   const editHitbox = qs('.edit-hitbox');
@@ -28,10 +30,11 @@
   const validInput = qs('#valid-input');
 
   // Configure validity date (example to match screenshots)
-  validUntilEl.textContent = '14.11.2025';
+  validUntilEl.textContent = '30.11.2025';
 
   // LocalStorage key
   const KEY = 'coupon_redeemed_at_v1';
+  const SAVE_KEY = 'coupon_saved_v1';
   const TITLE_KEY = 'custom_title_v1';
   const LEGAL_KEY = 'custom_legal_v1';
   const IMAGE_KEY = 'custom_image_v1';
@@ -48,17 +51,37 @@
     return `${day}.${month}.${year} klo ${hours}:${mins}`;
   }
 
+  function fmtDate(d){
+    const pad = (n)=>String(n).padStart(2,'0');
+    const day = pad(d.getDate());
+    const month = pad(d.getMonth()+1);
+    const year = d.getFullYear();
+    return `${day}.${month}.${year}`;
+  }
+
+  function fmtTime(d){
+    const pad = (n)=>String(n).padStart(2,'0');
+    const hours = pad(d.getHours());
+    const mins = pad(d.getMinutes());
+    return `${hours}:${mins}`;
+  }
+
   function updateUI(){
     const ts = localStorage.getItem(KEY);
     const redeemed = !!ts;
+    const hero = document.querySelector('.hero');
     if(redeemed){
       redeemStatus.classList.remove('hidden');
-      redeemTimeEl.textContent = fmtDateTime(new Date(Number(ts)));
+      const d = new Date(Number(ts));
+      if (redeemDateEl) redeemDateEl.textContent = fmtDate(d);
+      if (redeemTimeEl) redeemTimeEl.textContent = fmtTime(d);
       actionBtn.style.display = 'none'; // hide CTA after redeem to match flow
-    }else{
+      if (hero) hero.classList.add('redeemed');
+    } else {
       redeemStatus.classList.add('hidden');
       actionBtn.style.display = 'block';
       actionBtn.textContent = 'Näytä myyjälle';
+      if (hero) hero.classList.remove('redeemed');
     }
   }
 
@@ -173,7 +196,7 @@
 
   // Main button behavior
   actionBtn.addEventListener('click', () => {
-    // Always open confirmation sheet; CTA is hidden after redeem
+    // Open confirmation sheet on all devices
     openSheet();
   });
 
@@ -183,11 +206,49 @@
     if (editOpen) { closeEditSheet(); } else { closeSheet(); }
   });
   confirmBtn.addEventListener('click', ()=>{
-    const now = Date.now();
-    localStorage.setItem(KEY, String(now));
-    updateUI();
-    // Close sheet and return to the card – no intermediate screen
-    closeSheet();
+    // Disable button and show loading state
+    confirmBtn.disabled = true;
+    const originalText = confirmBtn.textContent;
+    
+    // Remove any existing loading overlay first
+    const existingOverlay = sheet.querySelector('.sheet-loading');
+    if (existingOverlay) existingOverlay.remove();
+    
+    // Create spinner container
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.className = 'sheet-loading';
+    const spinner = document.createElement('span');
+    spinner.className = 'sheet-spinner';
+    loadingOverlay.appendChild(spinner);
+    
+    // Get the sheet actions
+    const sheetActions = sheet.querySelector('.sheet-actions');
+    
+    // Hide only the buttons, keep text visible
+    if (sheetActions) sheetActions.style.display = 'none';
+    
+    // Insert loading overlay before actions
+    if (sheetActions) {
+      sheetActions.parentNode.insertBefore(loadingOverlay, sheetActions);
+    } else {
+      sheet.appendChild(loadingOverlay);
+    }
+    
+    // Wait 500ms before marking as redeemed
+    setTimeout(()=>{
+      const now = Date.now();
+      localStorage.setItem(KEY, String(now));
+      updateUI();
+      closeSheet();
+      // Reset button
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = originalText;
+      // Clean up: remove loading overlay
+      const overlay = sheet.querySelector('.sheet-loading');
+      if (overlay) overlay.remove();
+      // Restore button visibility
+      if (sheetActions) sheetActions.style.display = '';
+    }, 500);
   });
 
   // Back arrow: reset the entire view
@@ -195,6 +256,12 @@
     backBtn.addEventListener('click', () => {
       try { closeSheet(); } catch (e) {}
       try { closeEditSheet(); } catch (e) {}
+      // Clean up any loading overlays and restore sheet state
+      const existingOverlay = sheet.querySelector('.sheet-loading');
+      if (existingOverlay) existingOverlay.remove();
+      const sheetActions = sheet.querySelector('.sheet-actions');
+      if (sheetActions) sheetActions.style.display = '';
+      // Reset redemption state
       localStorage.removeItem(KEY);
       updateUI();
       // Scroll to top to mimic a fresh view
@@ -224,8 +291,8 @@
       localStorage.removeItem(IMAGE_KEY);
       localStorage.removeItem(DISCOUNT_KEY);
       // Restore defaults in UI
-      if (titleEl) titleEl.textContent = 'Valitsemasi hillo tai säilyke';
-      if (legalEl) legalEl.textContent = 'Tällä kupongilla valitsemasi hillo tai säilyke -25 %. 1 kpl/kuponki. Lunastettavissa 1.–14.11.2025 TOK:n Prismasta, S-marketista, Salesta tai ABC-liikennemyymälästä. Ei voimassa verkkokaupassa. Ei voi yhdistää muihin etuihin. Ei koske punalaputettuja tuotteita. Kuvat esimerkkejä, valikoima vaihtelee myymälöittäin.';
+      if (titleEl) titleEl.textContent = 'Valitsemasi Tex Mex -tuote';
+      if (legalEl) legalEl.textContent = 'Tällä kupongilla valitsemasi Tex Mex -tuote -25 %. 1 kpl/kuponki. Lunastettavissa 15.–30.11.2025 TOK:n Prismasta, S-marketista, Salesta tai ABC-liikennemyymälästä. Ei voimassa verkkokaupassa. Ei voi yhdistää muihin etuihin. Ei koske punalaputettuja tuotteita. Kuvat esimerkkejä, valikoima vaihtelee myymälöittäin.';
       if (discountEl) discountEl.textContent = '-25 %';
       if (heroImage) {
         heroImage.src = 'assets/coupon.jpg';
@@ -233,8 +300,8 @@
         if (fb) fb.style.display = 'none';
       }
       // Persist defaults to ensure they stick across reloads
-      localStorage.setItem(TITLE_KEY, 'Valitsemasi hillo tai säilyke');
-      localStorage.setItem(LEGAL_KEY, 'Tällä kupongilla valitsemasi hillo tai säilyke -25 %. 1 kpl/kuponki. Lunastettavissa 1.–14.11.2025 TOK:n Prismasta, S-marketista, Salesta tai ABC-liikennemyymälästä. Ei voimassa verkkokaupassa. Ei voi yhdistää muihin etuihin. Ei koske punalaputettuja tuotteita. Kuvat esimerkkejä, valikoima vaihtelee myymälöittäin.');
+      localStorage.setItem(TITLE_KEY, 'Valitsemasi Tex Mex -tuote');
+      localStorage.setItem(LEGAL_KEY, 'Tällä kupongilla valitsemasi Tex Mex -tuote -25 %. 1 kpl/kuponki. Lunastettavissa 15.–30.11.2025 TOK:n Prismasta, S-marketista, Salesta tai ABC-liikennemyymälästä. Ei voimassa verkkokaupassa. Ei voi yhdistää muihin etuihin. Ei koske punalaputettuja tuotteita. Kuvat esimerkkejä, valikoima vaihtelee myymälöittäin.');
       localStorage.setItem(DISCOUNT_KEY, '-25 %');
       // For image we keep path; not stored to avoid base64 bloat, but ok to clear
       localStorage.removeItem(IMAGE_KEY);
@@ -251,11 +318,29 @@
   // Initialize
   if (legalEl && !localStorage.getItem(LEGAL_KEY)) {
     // Default long text if none saved yet
-    legalEl.textContent = 'Tällä kupongilla valitsemasi hillo tai säilyke -25 %. 1 kpl/kuponki. Lunastettavissa 1.–14.11.2025 TOK:n Prismasta, S-marketista, Salesta tai ABC-liikennemyymälästä. Ei voimassa verkkokaupassa. Ei voi yhdistää muihin etuihin. Ei koske punalaputettuja tuotteita. Kuvat esimerkkejä, valikoima vaihtelee myymälöittäin.';
+    legalEl.textContent = 'Tällä kupongilla valitsemasi Tex Mex -tuote -25 %. 1 kpl/kuponki. Lunastettavissa 15.–30.11.2025 TOK:n Prismasta, S-marketista, Salesta tai ABC-liikennemyymälästä. Ei voimassa verkkokaupassa. Ei voi yhdistää muihin etuihin. Ei koske punalaputettuja tuotteita. Kuvat esimerkkejä, valikoima vaihtelee myymälöittäin.';
   }
   if (titleEl && !localStorage.getItem(TITLE_KEY)) {
-    titleEl.textContent = 'Valitsemasi hillo tai säilyke';
+    titleEl.textContent = 'Valitsemasi Tex Mex -tuote';
   }
+
+  // Initialize save button state
+  try {
+    if (saveBtn) {
+      const saved = localStorage.getItem(SAVE_KEY) === '1';
+      if (saved) {
+        saveBtn.classList.add('saved');
+        saveBtn.setAttribute('aria-pressed', 'true');
+      }
+      saveBtn.addEventListener('click', () => {
+        const isSaved = saveBtn.classList.toggle('saved');
+        saveBtn.setAttribute('aria-pressed', isSaved ? 'true' : 'false');
+        try {
+          if (isSaved) localStorage.setItem(SAVE_KEY, '1'); else localStorage.removeItem(SAVE_KEY);
+        } catch (e) {}
+      });
+    }
+  } catch (e) {}
 
   // Apply any saved customizations
   (function applySaved(){

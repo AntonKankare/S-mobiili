@@ -6,6 +6,9 @@
     <meta name="theme-color" content="#0a8f3d" />
     <title>Etukuponki – S-tyyli</title>
     <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   </head>
   <body>
     <div class="app">
@@ -25,11 +28,19 @@
 
         <section class="card">
           <div class="label">Etukuponki</div>
-          <h1 class="title">Valitsemasi hillo tai säilyke</h1>
+          <div class="title-row">
+            <h1 class="title">Valitsemasi hillo tai säilyke</h1>
+            <button class="save-btn" aria-pressed="false" aria-label="Tallenna kuponki">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M6 2h12a1 1 0 0 1 1 1v18l-7-4-7 4V3a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+              </svg>
+            </button>
+          </div>
           <div class="discount">-25 %</div>
 
           <div id="redeem-status" class="redeem-status hidden">
-            Kuponki on lunastettu <span id="redeem-time"></span>
+            <div class="redeem-line">Kuponki on lunastettu <span id="redeem-date"></span></div>
+            <div class="redeem-line redeem-time">klo <span id="redeem-time"></span></div>
           </div>
 
           <p class="muted">
@@ -69,7 +80,7 @@
         </div>
         <div class="form-row">
           <label for="title-input" class="field-label">Otsikko</label>
-          <input id="title-input" class="text-input" type="text" placeholder="Valitsemasi hillo tai säilyke" />
+          <input id="title-input" class="text-input" type="text" placeholder="Valitsemasi Tex Mex -tuote" />
         </div>
         <div class="form-row">
           <label for="discount-input" class="field-label">Alennus (%)</label>
@@ -94,80 +105,9 @@
 
     <script src="app.js"></script>
     <script>
-      // Fallback: ensure the confirmation sheet opens even if external JS fails to bind
-      function openConfirmSheet(){
-        try {
-          var appEl = document.querySelector('.app');
-          if (appEl) appEl.classList.add('sheet-open');
-          var overlay = document.getElementById('overlay');
-          var sheet = document.getElementById('confirm-sheet');
-          if (overlay) overlay.classList.remove('hidden');
-          if (sheet) {
-            sheet.classList.remove('hidden');
-            requestAnimationFrame(function(){ sheet.classList.add('open'); });
-          }
-        } catch (e) { /* noop */ }
-      }
-      function closeConfirmSheet(){
-        try {
-          var sheet = document.getElementById('confirm-sheet');
-          var overlay = document.getElementById('overlay');
-          if (sheet) sheet.classList.remove('open');
-          setTimeout(function(){
-            if (overlay) overlay.classList.add('hidden');
-            if (sheet) sheet.classList.add('hidden');
-            var appEl = document.querySelector('.app');
-            if (appEl) appEl.classList.remove('sheet-open');
-          }, 180);
-        } catch (_) {}
-      }
-
       
 
-      (function(){
-        var btn = document.getElementById('action-btn');
-        if (btn) {
-          // Inline wiring as a backup path
-          if (!btn.onclick) btn.setAttribute('onclick','openConfirmSheet()');
-          btn.addEventListener('click', openConfirmSheet);
-          try {
-            btn.addEventListener('touchstart', function(e){ e.preventDefault(); openConfirmSheet(); }, { passive:false });
-          } catch (_) {}
-        }
 
-        // Fallback sheet controls if external JS didn't bind
-        var cancel = document.getElementById('cancel-btn');
-        var overlay = document.getElementById('overlay');
-        var confirm = document.getElementById('confirm-btn');
-        if (cancel && !cancel.dataset.fallbackBound) {
-          cancel.dataset.fallbackBound = '1';
-          cancel.addEventListener('click', closeConfirmSheet);
-        }
-        if (overlay && !overlay.dataset.fallbackBound) {
-          overlay.dataset.fallbackBound = '1';
-          overlay.addEventListener('click', closeConfirmSheet);
-        }
-        if (confirm && !confirm.dataset.fallbackBound) {
-          confirm.dataset.fallbackBound = '1';
-          confirm.addEventListener('click', function(){
-            try { localStorage.setItem('coupon_redeemed_at_v1', String(Date.now())); } catch (_) {}
-            // Update basic UI as a fallback
-            try {
-              var s = document.getElementById('redeem-status');
-              var t = document.getElementById('redeem-time');
-              var a = document.getElementById('action-btn');
-              if (s) s.classList.remove('hidden');
-              if (t) {
-                var d = new Date();
-                var pad = function(n){ return String(n).padStart(2,'0'); };
-                t.textContent = pad(d.getDate()) + '.' + pad(d.getMonth()+1) + '.' + d.getFullYear() + ' klo ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
-              }
-              if (a) a.style.display = 'none';
-            } catch(_) {}
-            closeConfirmSheet();
-          });
-        }
-      })();
     </script>
   </body>
   </html>
