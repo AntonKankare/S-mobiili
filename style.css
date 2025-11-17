@@ -1,0 +1,186 @@
+:root{
+  --green:#0a8f3d;
+  --green-2:#14a44d;
+  --bg:#f5f6f7;
+  --card:#ffffff;
+  --text:#222;
+  --muted:#6a6d72;
+  --border:#e5e7ea;
+  --divider:#dcdcdc; /* closer to screenshot lines */
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica,Arial,sans-serif;
+  /* Prefer Inter if available for a closer look */
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Noto Sans", Helvetica, Arial, sans-serif;
+  overflow-x:hidden;
+}
+
+.app{min-height:100%;display:flex;flex-direction:column}
+
+/* App bar */
+.app-bar{
+  height:56px;
+  padding:0 12px env(safe-area-inset-right) 0 env(safe-area-inset-left);
+  display:flex;align-items:center;
+  background:#fff;
+  color:#222;
+  border-bottom:1px solid var(--border);
+  position:relative; /* for absolute edit hitbox */
+  z-index:600;
+}
+.back{appearance:none;border:0;background:transparent;color:#222;font-size:28px;line-height:1;cursor:pointer}
+.spacer{flex:1}
+.brand{font-weight:600;opacity:.9}
+
+.content{padding-bottom:88px}
+
+.hero{background:#fff;padding:8px 0 0 0}
+.hero img{width:100%;height:auto;display:block}
+.hero-fallback{height:180px;background:repeating-linear-gradient(45deg,#e8eff0,#e8eff0 10px,#f7fbf8 10px,#f7fbf8 20px);color:#1b5e20;align-items:center;justify-content:center;font-weight:600}
+
+.card{background:var(--card);padding:16px;border-top:1px solid var(--border)}
+.label{color:var(--muted);font-size:14px;margin-bottom:4px}
+.title{margin:.1rem 0 .25rem 0;font-size:22px}
+.discount{font-size:40px;font-weight:700;color:var(--green-2);letter-spacing:.5px;margin:4px 0 12px}
+.muted{color:var(--muted);margin:8px 0 16px}
+.valid{color:#777;font-size:14px}
+
+.redeem-status{
+  background:#f3f4f6;
+  border:1px solid #e2e5e9;
+  color:#222;
+  padding:10px 12px;
+  border-radius:8px;
+  margin:8px 0 12px;
+  font-weight:600;
+}
+.redeem-status #redeem-time{font-weight:700}
+.hidden{display:none !important}
+
+/* CTA fixed button */
+.cta{position:fixed;left:0;right:0;bottom:0;display:block;width:100%;
+  padding:18px 24px; border:0; color:#fff; font-size:18px; font-weight:700; cursor:pointer;
+  background:var(--green-2);
+  box-shadow:0 -1px 0 var(--border), 0 -6px 16px rgba(0,0,0,.08);
+  z-index:700;
+}
+.cta:disabled{opacity:.6}
+
+/* Bottom sheet */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:900;}
+.sheet{position:fixed;left:0;right:0;bottom:0;background:#fff;border-radius:16px 16px 0 0;box-shadow:0 -8px 24px rgba(0,0,0,.22);padding:12px 16px 0;transform:translateY(100%);transition:transform .2s ease-out;z-index:1000}
+.sheet h2{margin:6px 0 8px;font-size:22px;text-align:center;color:var(--green-2);font-weight:800}
+.sheet p{color:#4b5563}
+.sheet .sheet-lead{color:#374151;font-weight:600}
+.sheet .sheet-note{color:#6b7280}
+.sheet .sheet-handle{width:48px;height:4px;background:#ddd;border-radius:4px;margin:6px auto 14px}
+.sheet .sheet-actions{
+  display:flex;
+  justify-content:space-between;
+  align-items:stretch;
+  margin-top:8px;
+  border-top:1px solid var(--divider);
+  gap:0;
+  padding-bottom:calc(16px + env(safe-area-inset-bottom));
+  /* Stretch dividers to sheet edges */
+  margin-left:-16px;
+  margin-right:-16px;
+}
+/* Bottom sheet action buttons: flat, side-by-side, center divider */
+.btn{border:0;border-radius:10px;padding:14px 16px;font-weight:700;cursor:pointer}
+.sheet .btn{
+  flex:1;
+  border-radius:0;
+  background:transparent !important;
+  color:#222 !important;
+  padding:22px 0 22px; /* symmetric tall touch target */
+  font-weight:700;
+  font-size:19px; /* closer to native */
+  letter-spacing:.2px;
+  text-shadow:0 1px 0 rgba(0,0,0,.06); /* slightly stronger for depth */
+  box-shadow:none !important;
+  border:none !important;
+  text-align:center;
+  -webkit-appearance:none;
+  appearance:none;
+}
+.sheet .btn + .btn{border-left:1px solid var(--divider)}
+.sheet .btn.ghost{color:#222 !important;background:transparent !important;border:none !important;box-shadow:none !important}
+.sheet .btn.primary{color:#222 !important;background:transparent !important;border:none !important;box-shadow:none !important}
+.btn.light{background:#fff;color:#222;border:1px solid var(--border)}
+.sheet.open{transform:translateY(0)}
+
+/* Hide fixed CTA while sheet is open */
+.app.sheet-open .cta{visibility:hidden}
+
+/* Cashier overlay */
+.cashier{position:fixed;inset:0;background:#fff;display:flex;align-items:center;justify-content:center;z-index:1200}
+.cashier-content{text-align:center}
+.big-discount{font-size:72px;color:var(--green-2);font-weight:800;letter-spacing:1px}
+.cashier-note{color:var(--muted);margin:10px 0 18px}
+
+@media (min-width:700px){
+  .app{max-width:460px;margin:0 auto;background:#fff;min-height:100vh;box-shadow:0 0 0 1px var(--border)}
+  body{background:#e9ecef}
+}
+
+/* Full-bleed redeemed banner on mobile */
+@media (max-width:699px){
+  .redeem-status{
+    width:100vw;
+    margin-left:calc(50% - 50vw);
+    margin-right:calc(50% - 50vw);
+    border-left:0;
+    border-right:0;
+    border-radius:0;
+    padding-left:calc(16px + env(safe-area-inset-left));
+    padding-right:calc(16px + env(safe-area-inset-right));
+  }
+}
+
+/* --- Force exact flat sheet action look --- */
+.sheet .sheet-actions{border-top:1px solid var(--divider) !important}
+.sheet .sheet-actions > #cancel-btn,
+.sheet .sheet-actions > #confirm-btn{
+  background:none !important;
+  background-color:transparent !important;
+  color:#222 !important;
+  border:none !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  font-weight:700 !important;
+  font-size:19px !important;
+  padding:22px 0 !important;
+}
+.sheet .sheet-actions > #confirm-btn{border-left:1px solid var(--divider) !important}
+
+/* New class to avoid any external .btn styles */
+.sheet .sheet-actions .sheet-action{
+  flex:1;
+  display:block;
+  background:transparent !important;
+  color:#222 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  font-weight:700 !important;
+  font-size:19px !important;
+  padding:22px 0 !important;
+  text-align:center;
+}
+.sheet .sheet-actions .sheet-action + .sheet-action{border-left:1px solid var(--divider) !important}
+
+/* Invisible edit hitbox in the right side of app bar */
+.edit-hitbox{position:absolute;top:0;right:0;width:120px;height:56px;border:0;background:transparent;cursor:pointer}
+
+/* Simple form styles for edit sheet */
+.form-row{margin:8px 0 12px}
+.field-label{display:block;font-size:14px;color:#555;margin:6px 0}
+.text-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:16px}
+.text-input:focus{outline:2px solid #cfe9d8;outline-offset:0}

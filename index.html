@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="fi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0a8f3d" />
+    <title>Etukuponki – S-tyyli</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="app-bar">
+        <button class="back" aria-label="Takaisin">&#x2039;</button>
+        <div class="spacer"></div>
+        <!-- Invisible edit hitbox in the right top corner -->
+        <button class="edit-hitbox" aria-label="Muokkaus"></button>
+      </header>
+
+      <main class="content">
+        <div class="hero">
+          <img id="hero-image" src="assets/coupon.jpg" alt="Tuotekuva"
+               onerror="this.style.display='none';document.getElementById('hero-fallback').style.display='flex';"/>
+          <div id="hero-fallback" class="hero-fallback" style="display:none">Etukuponkikuva</div>
+        </div>
+
+        <section class="card">
+          <div class="label">Etukuponki</div>
+          <h1 class="title">Valitsemasi hillo tai säilyke</h1>
+          <div class="discount">-25 %</div>
+
+          <div id="redeem-status" class="redeem-status hidden">
+            Kuponki on lunastettu <span id="redeem-time"></span>
+          </div>
+
+          <p class="muted">
+            Tällä kupongilla valitsemasi hillo tai säilyke -25&nbsp;%. 1 kpl/kuponki. Lunastettavissa
+            S-ryhmän myymälöissä. Ei verkkokaupassa. Ei yhdistettävissä muihin etuihin. Tuotekuvat esimerkkejä.
+          </p>
+          <div class="valid">Voimassa <span id="valid-until"></span> asti</div>
+        </section>
+      </main>
+
+      <button id="action-btn" class="cta" aria-live="polite">Näytä myyjälle</button>
+
+      <!-- Modal overlay (behind sheet) -->
+      <div id="overlay" class="overlay hidden" aria-hidden="true"></div>
+
+      <!-- Confirmation bottom sheet -->
+      <div id="confirm-sheet" class="sheet hidden" aria-hidden="true">
+        <div class="sheet-handle"></div>
+        <h2>Kupongin lunastus</h2>
+        <p>
+          Vahvista, että kuponki käytetään nyt. Voit käyttää kupongin vain kerran ja ostotapahtuman
+          yhteydessä. Lunasta kuponki painikkeella ja näytä lunastettu kuponki kassalla.
+        </p>
+        <div class="sheet-actions">
+          <button id="cancel-btn" class="sheet-action" type="button">Peruuta</button>
+          <button id="confirm-btn" class="sheet-action" type="button">Lunasta kuponki</button>
+        </div>
+      </div>
+
+      <!-- Editor bottom sheet -->
+      <div id="edit-sheet" class="sheet hidden" aria-hidden="true">
+        <div class="sheet-handle"></div>
+        <h2>Muokkaa sisältöä</h2>
+        <div class="form-row">
+          <label for="img-input" class="field-label">Uusi kuva</label>
+          <input id="img-input" type="file" accept="image/*" />
+        </div>
+        <div class="form-row">
+          <label for="title-input" class="field-label">Otsikko</label>
+          <input id="title-input" class="text-input" type="text" placeholder="Valitsemasi hillo tai säilyke" />
+        </div>
+        <div class="form-row">
+          <label for="discount-input" class="field-label">Alennus (%)</label>
+          <input id="discount-input" class="text-input" type="number" min="0" max="100" step="1" placeholder="25" />
+        </div>
+        <div class="form-row">
+          <label for="valid-input" class="field-label">Voimassa-teksti</label>
+          <input id="valid-input" class="text-input" type="text" placeholder="14.11.2025" />
+        </div>
+        <div class="form-row">
+          <label for="legal-input" class="field-label">Kuvausteksti</label>
+          <textarea id="legal-input" class="text-input" rows="5" placeholder="Pitkä kuvaava teksti"></textarea>
+        </div>
+        <div class="sheet-actions">
+          <button id="edit-cancel" class="sheet-action" type="button">Peruuta</button>
+          <button id="edit-save" class="sheet-action" type="button">Tallenna</button>
+        </div>
+      </div>
+
+      <!-- Cashier view removed: after redeem we return to card with status -->
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+      // Fallback: ensure the confirmation sheet opens even if external JS fails to bind
+      function openConfirmSheet(){
+        try {
+          var appEl = document.querySelector('.app');
+          if (appEl) appEl.classList.add('sheet-open');
+          var overlay = document.getElementById('overlay');
+          var sheet = document.getElementById('confirm-sheet');
+          if (overlay) overlay.classList.remove('hidden');
+          if (sheet) {
+            sheet.classList.remove('hidden');
+            requestAnimationFrame(function(){ sheet.classList.add('open'); });
+          }
+        } catch (e) { /* noop */ }
+      }
+      function closeConfirmSheet(){
+        try {
+          var sheet = document.getElementById('confirm-sheet');
+          var overlay = document.getElementById('overlay');
+          if (sheet) sheet.classList.remove('open');
+          setTimeout(function(){
+            if (overlay) overlay.classList.add('hidden');
+            if (sheet) sheet.classList.add('hidden');
+            var appEl = document.querySelector('.app');
+            if (appEl) appEl.classList.remove('sheet-open');
+          }, 180);
+        } catch (_) {}
+      }
+
+      
+
+      (function(){
+        var btn = document.getElementById('action-btn');
+        if (btn) {
+          // Inline wiring as a backup path
+          if (!btn.onclick) btn.setAttribute('onclick','openConfirmSheet()');
+          btn.addEventListener('click', openConfirmSheet);
+          try {
+            btn.addEventListener('touchstart', function(e){ e.preventDefault(); openConfirmSheet(); }, { passive:false });
+          } catch (_) {}
+        }
+
+        // Fallback sheet controls if external JS didn't bind
+        var cancel = document.getElementById('cancel-btn');
+        var overlay = document.getElementById('overlay');
+        var confirm = document.getElementById('confirm-btn');
+        if (cancel && !cancel.dataset.fallbackBound) {
+          cancel.dataset.fallbackBound = '1';
+          cancel.addEventListener('click', closeConfirmSheet);
+        }
+        if (overlay && !overlay.dataset.fallbackBound) {
+          overlay.dataset.fallbackBound = '1';
+          overlay.addEventListener('click', closeConfirmSheet);
+        }
+        if (confirm && !confirm.dataset.fallbackBound) {
+          confirm.dataset.fallbackBound = '1';
+          confirm.addEventListener('click', function(){
+            try { localStorage.setItem('coupon_redeemed_at_v1', String(Date.now())); } catch (_) {}
+            // Update basic UI as a fallback
+            try {
+              var s = document.getElementById('redeem-status');
+              var t = document.getElementById('redeem-time');
+              var a = document.getElementById('action-btn');
+              if (s) s.classList.remove('hidden');
+              if (t) {
+                var d = new Date();
+                var pad = function(n){ return String(n).padStart(2,'0'); };
+                t.textContent = pad(d.getDate()) + '.' + pad(d.getMonth()+1) + '.' + d.getFullYear() + ' klo ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+              }
+              if (a) a.style.display = 'none';
+            } catch(_) {}
+            closeConfirmSheet();
+          });
+        }
+      })();
+    </script>
+  </body>
+  </html>
