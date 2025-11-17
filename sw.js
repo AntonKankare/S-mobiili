@@ -5,6 +5,8 @@ const ASSETS = [
   './style.css',
   './app.js',
   './assets/coupon.jpg',
+  './assets/icons/icon-192.png',
+  './assets/icons/icon-512.png',
   './manifest.webmanifest'
 ];
 
@@ -31,4 +33,3 @@ self.addEventListener('fetch', (event) => {
     caches.match(request).then((cached) => cached || fetch(request))
   );
 });
-
